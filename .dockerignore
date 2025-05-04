@@ -1,0 +1,35 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+
+# Output of build tools
+bin/
+out/
+
+# IDE and editor files
+*.swp
+*.swo
+*.idea/
+*.vscode/
+*.DS_Store
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.old
+
+# Go build cache
+*.cache/
+*.tmp/
+
+# Docker-related files
+Dockerfile
+docker-compose.yml
+
+# version control
+.git/
+.gitignore
