@@ -47,12 +47,22 @@ func main() {
 		panic(err)
 	}
 
+	histories, missingUsers := processUsers(users, timestamp)
+
+	repository.SaveHistories(histories)
+	showResults(missingUsers)
+}
+
+func processUsers(users []xcrawler.User, timestamp time.Time) ([]xcrawler.History, []string) {
+	missingUsers := make([]string, 0)
 	histories := make([]xcrawler.History, 0)
+
 	for _, user := range users {
 		strID := fmt.Sprintf("%d", user.ID)
 		profile, err := scraper.GetProfileByID(strID)
 		if err != nil {
-			panic(err)
+			missingUsers = append(missingUsers, strID)
+			continue
 		}
 
 		history := xcrawler.History{
@@ -65,5 +75,14 @@ func main() {
 		histories = append(histories, history)
 	}
 
-	repository.SaveHistories(histories)
+	return histories, missingUsers
+}
+
+func showResults(missingUsers []string) {
+	if len(missingUsers) > 0 {
+		fmt.Println("Missing users: ", missingUsers)
+		fmt.Println("Please check if the user is deleted or private.")
+	} else {
+		fmt.Println("Crawling completed successfully")
+	}
 }
