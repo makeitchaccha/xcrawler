@@ -61,7 +61,7 @@ func processUsers(users []xcrawler.User, timestamp time.Time) ([]xcrawler.Histor
 		strID := fmt.Sprintf("%d", user.ID)
 		profile, err := scraper.GetProfileByID(strID)
 		if err != nil {
-			missingUsers = append(missingUsers, strID)
+			missingUsers = append(missingUsers, fmt.Sprintf("%d with error: %s", user.ID, err.Error()))
 			continue
 		}
 
