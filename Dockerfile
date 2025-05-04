@@ -10,7 +10,7 @@ RUN make build
 FROM debian:bookworm-slim
 
 # install tzdata for timezone support
-RUN apt-get update && apt-get install -y tzdata && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y tzdata ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # by default, uses UTC timezone
 # to change timezone, set TZ environment variable
