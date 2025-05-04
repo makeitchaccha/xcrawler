@@ -21,6 +21,7 @@ type History struct {
 type Repository interface {
 	SaveUser(user User) error
 	SaveHistory(history History) error
+	SaveHistories(histories []History) error
 
 	FindAllUsers() ([]User, error)
 }
@@ -39,6 +40,10 @@ func (r *repositoryImpl) SaveUser(user User) error {
 
 func (r *repositoryImpl) SaveHistory(history History) error {
 	return r.db.Create(&history).Error
+}
+
+func (r *repositoryImpl) SaveHistories(histories []History) error {
+	return r.db.Create(&histories).Error
 }
 
 func (r *repositoryImpl) FindAllUsers() ([]User, error) {
