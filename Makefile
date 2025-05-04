@@ -11,11 +11,11 @@ run: build
 
 
 # Database Migration Commands
-db-up:
+gup:
 	goose --dir $(MIGRATIONS_DIR) up
-db-down:
+gdown:
 	goose --dir $(MIGRATIONS_DIR) down
-db-status:
+gstatus:
 	goose --dir $(MIGRATIONS_DIR) status
-db-create:
-	goose --dir $(MIGRATIONS_DIR) create $(name) sql
+gcreate-%:
+	goose --dir $(MIGRATIONS_DIR) create ${@:gcreate-%=%} sql
