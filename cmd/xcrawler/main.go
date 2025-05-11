@@ -23,6 +23,10 @@ func init() {
 		Token:     os.Getenv("CRAWLER_X_TOKEN"),
 		CSRFToken: os.Getenv("CRAWLER_X_CSRF_TOKEN"),
 	})
+
+	if !scraper.IsLoggedIn() {
+		panic("Invalid AuthToken")
+	}
 }
 
 // database connection
