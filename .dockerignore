@@ -33,3 +33,6 @@ docker-compose.yml
 # version control
 .git/
 .gitignore
+
+# secret files
+**/.env
