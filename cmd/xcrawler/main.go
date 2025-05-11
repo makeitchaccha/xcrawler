@@ -32,7 +32,6 @@ func init() {
 // database connection
 func init() {
 	fmt.Println("Connecting to database...")
-	fmt.Println("DB_STRING: ", os.Getenv("CRAWLER_DB_STRING"))
 	db, err := gorm.Open(postgres.Open(os.Getenv("CRAWLER_DB_STRING")), &gorm.Config{})
 
 	if err != nil {
