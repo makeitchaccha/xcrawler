@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"fmt"
 	"os"
 	"time"
 
+	"github.com/google/subcommands"
 	twitterscraper "github.com/imperatrona/twitter-scraper"
 	"github.com/makeitchaccha/xcrawler"
 	"gorm.io/driver/postgres"
@@ -16,8 +19,18 @@ var (
 	repository xcrawler.Repository
 )
 
-// prepare scraper
 func init() {
+	// subcommand
+	subcommands.Register(subcommands.FlagsCommand(), "")
+	subcommands.Register(subcommands.HelpCommand(), "")
+	subcommands.Register(subcommands.CommandsCommand(), "")
+	subcommands.Register(&crawlCmd{}, "")
+
+	flag.Parse()
+}
+
+// prepare scraper
+func prepareScraper() {
 	scraper = twitterscraper.New()
 	scraper.SetAuthToken(twitterscraper.AuthToken{
 		Token:     os.Getenv("CRAWLER_X_TOKEN"),
@@ -30,7 +43,7 @@ func init() {
 }
 
 // database connection
-func init() {
+func prepareDatabase() {
 	fmt.Println("Connecting to database...")
 	db, err := gorm.Open(postgres.Open(os.Getenv("CRAWLER_DB_STRING")), &gorm.Config{})
 
@@ -43,6 +56,26 @@ func init() {
 }
 
 func main() {
+	ctx := context.Background()
+	os.Exit(int(subcommands.Execute(ctx)))
+}
+
+var _ subcommands.Command = (*crawlCmd)(nil)
+
+type crawlCmd struct{}
+
+func (*crawlCmd) Name() string     { return "crawl" }
+func (*crawlCmd) Synopsis() string { return "Crawl the users registered on a database." }
+func (*crawlCmd) Usage() string {
+	return `crawl:
+	Crawl the users registered on a database.
+`
+}
+
+func (*crawlCmd) SetFlags(f *flag.FlagSet) {}
+func (*crawlCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+	prepareScraper()
+	prepareDatabase()
 	timestamp := time.Now().Truncate(time.Minute)
 
 	users, err := repository.FindAllUsers()
@@ -54,6 +87,8 @@ func main() {
 
 	repository.SaveHistories(histories)
 	showResults(missingUsers)
+
+	return subcommands.ExitSuccess
 }
 
 func processUsers(users []xcrawler.User, timestamp time.Time) ([]xcrawler.History, []string) {
