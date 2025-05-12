@@ -3,6 +3,15 @@
 
 MIGRATIONS_DIR=./migrations
 
+fmt:
+	go fmt ./...
+
+lint: fmt
+	staticcheck
+
+vet: fmt
+	go vet ./...
+
 build:
 	go build -o build/xcrawler ./cmd/xcrawler/main.go
 
