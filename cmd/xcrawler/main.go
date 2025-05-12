@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/google/subcommands"
@@ -25,6 +26,7 @@ func init() {
 	subcommands.Register(subcommands.HelpCommand(), "")
 	subcommands.Register(subcommands.CommandsCommand(), "")
 	subcommands.Register(&crawlCmd{}, "")
+	subcommands.Register(&addCmd{}, "")
 
 	flag.Parse()
 }
@@ -58,6 +60,55 @@ func prepareDatabase() {
 func main() {
 	ctx := context.Background()
 	os.Exit(int(subcommands.Execute(ctx)))
+}
+
+var _ subcommands.Command = (*addCmd)(nil)
+
+type addCmd struct {
+}
+
+func (*addCmd) Name() string { return "add" }
+
+func (*addCmd) Synopsis() string { return "Add a user to the database." }
+
+func (*addCmd) Usage() string {
+	return `add <username>:
+	Add a user to the database.
+`
+}
+
+func (c *addCmd) SetFlags(f *flag.FlagSet) {}
+
+func (*addCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+	if f.NArg() != 1 {
+		return subcommands.ExitUsageError
+	}
+
+	username := f.Arg(0)
+
+	prepareScraper()
+	prepareDatabase()
+
+	// check if user exists
+	user, err := scraper.GetProfile(username)
+	if err != nil {
+		fmt.Println("Failed to fetch user from twitter: ", err)
+		return subcommands.ExitFailure
+	}
+
+	id, err := strconv.ParseUint(user.UserID, 10, 64)
+	if err != nil {
+		fmt.Println("Failed to parse user ID: ", err)
+		return subcommands.ExitFailure
+	}
+
+	repository.SaveUser(xcrawler.User{
+		ID:       id,
+		Username: user.Username, // use username from twitter, to match the capitalization.
+	})
+
+	fmt.Printf("User %s added to the database\n", user.Username)
+	return subcommands.ExitSuccess
 }
 
 var _ subcommands.Command = (*crawlCmd)(nil)
