@@ -20,4 +20,4 @@ ENV TZ=UTC
 WORKDIR /app
 COPY --from=builder /build/build/xcrawler /app/xcrawler
 
-CMD [ "/app/xcrawler" ]
+CMD [ "/app/xcrawler", "crawl" ]
